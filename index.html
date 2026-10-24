@@ -36,13 +36,128 @@ function professorHint(c){
   var facility=hasTag("분류::시설")||/(제조소|저장소|취급소|탱크|방유제|통기관|환기|보유공지|배출설비)/.test(q);
   var firefighting=!/(대행기관|기술인력|지정기준)/.test(q)&&(hasTag("분류::소화")||/(소화설비|소화약제|소화난이도|방사|포소화|경보설비)/.test(q));
   var transport=hasTag("분류::운반")||/(운반용기|혼재|수납률|적재|용기 표시)/.test(q);
-  var material=!(/(측정 절차|측정 방법|측정기|측정절차|물보다.*비중|위험등급.*나누|나누어.*위험등급|공통기준|저장·취급.*공통)/.test(q))&&/(분자량|증기비중|물질을 식별|명칭을 쓰|물질의 명칭|무슨 물질|물질의 성질|물질의 특성|인화점.*(?:명칭|식별)|비중.*(?:명칭|식별))/.test(q);
+  var material=!(/(측정 절차|측정 방법|측정기|측정절차|물보다.*비중|위험등급.*나누|나누어.*위험등급|공통기준|저장·취급.*공통)/.test(q))&&/(?:분자량|증기비중|물질을 식별|무슨 물질|물질의 성질|물질의 특성|인화점.*(?:명칭|식별)|비중.*(?:명칭|식별))/.test(q);
   var mixed=/(혼합가스|혼합기체)/.test(q)&&/(폭발하한계|연소범위|위험도)/.test(q);
   var propertyJudgment=/(복수성상물품|각각.*유별|유별로 분류|어느 유별)/.test(q);
   var subparts=q.split(String.fromCharCode(10)).filter(function(line){var t=line.trim();return(t.charAt(0)==="("&&t.charAt(2)===")"&&t.charAt(1)>="0"&&t.charAt(1)<="9")||/^[①-⑳㉮-㉻]/.test(t)}).length;
   var definitionQuestion=/(?:정의|무엇을 뜻|뜻하는지|의미를 설명)/.test(q);
   var listStyle=!definitionQuestion&&(subparts>=2||/(?:가지|종류|모두.*(?:고르|쓰)|나열|빈칸|각각.*(?:계산|분류|반응식|명칭|유별))/ .test(q));
   var cues=[],directCues=[];
+  if(/분자량(?:이\s*)?114인 제3류 위험물/.test(q)){
+    directCues.push("물질 식별은 숫자를 분해하면 바로 됩니다: 에틸기 C₂H₅의 분자량은 29, Al은 27이므로 29×3+27=114. ‘114=에틸 3개(87)+알루미늄(27)’ → (C₂H₅)₃Al, 트라이에틸알루미늄입니다. 제3류·지정수량 10 kg 후보 중 114에 맞는 물질을 고르는 문제예요.");
+    directCues.push("반응은 ‘에틸기 3개가 에테인 3분자로 바뀌고, Al은 수산화물로 남는다’로 복원하세요: (C₂H₅)₃Al + 3H₂O → Al(OH)₃ + 3C₂H₆. 위험도는 에테인 연소범위 3.0~12.4에서 H=(상한−하한)/하한=(12.4−3.0)/3.0=3.13입니다. 분모는 상한이 아니라 하한 3.0입니다.");
+  }
+  if(/메탄올 200 kg 완전연소의 이론산소량/.test(q)){
+    directCues.push("메탄올 1 mol(32 g)에 O₂ 1.5 mol(48 g)이 필요하므로 질량비도 1.5입니다. 그래서 200×1.5=300 kg. ‘메탄올 32 → 산소 48 → ×1.5’로 기억하고, 문제에서 질량을 물었는지 표준상태 부피를 물었는지 확인하세요.");
+  }
+  if(/방사량·시간/.test(q)&&/IG 계열/.test(q)){
+    directCues.push("60초 기준에 방사량만 붙이세요: CO₂는 규정량 전량, IG는 규정량의 95% 이상. ‘CO₂=100%, IG=95%, 둘 다 60초’로 고정하면 비율과 시간 조건을 서로 바꾸지 않습니다.");
+  }
+  if(/물올림탱크에 필요한 장치/.test(q)){
+    directCues.push("물올림탱크는 물이 줄어들면 알려 주고 다시 채워야 합니다. 그래서 ‘감수경보장치 + 자동급수장치’ 두 개입니다. 기능 순서인 ‘감수 감지·경보 → 자동 보충’으로 외우세요.");
+  }
+  if(/변경신고는 언제까지 해야 하는가/.test(q)){
+    directCues.push("품명·수량·지정수량 배수 변경은 변경 뒤가 아니라 변경하려는 날의 1일 전까지 신고합니다. 일정표에 ‘변경일−1일’로 표시하세요. 지위승계 30일이나 용도폐지 14일과 혼동하지 마세요.");
+  }
+  if(/탱크시험자 등록 장비/.test(q)){
+    directCues.push("필수 장비는 ‘자·초·영’: 자기탐상, 초음파두께, 영상초음파(또는 방사선투과+초음파)입니다. 조건부는 ‘진·기·수’: 진공누설(53 kPa 이상), 기밀시험, 수직·수평도 측정입니다. 필수 3종과 조건부 3종을 두 묶음으로 분리하세요.");
+  }
+  if(/방유제 최소 용량을 계산/.test(q)){
+    directCues.push("두 탱크를 합산하지 않습니다. 방유제 용량은 가장 큰 탱크의 110%이므로 1,500만 L×1.1=1,650만 L 이상입니다. 먼저 최대 탱크를 고르고 10%를 더하세요.");
+  }
+  if(/소화난이도등급 I에서 다음 시설의 소화설비/.test(q)){
+    directCues.push("시설별로 ‘일반 제조·취급 / 주유 / 황 탱크’를 나눠 답하세요. 제조소·일반취급소는 옥내·옥외소화전, 스프링클러 또는 물분무등; 주유취급소는 소형수동식소화기등; 황만 저장하는 옥외탱크는 물분무소화설비입니다. 황은 녹아 흐르므로 냉각하는 물분무와 연결하세요.");
+  }
+  if(/제2류 위험물 인화성 고체와 제4류 위험물/.test(q)&&/필요한 간격/.test(q)){
+    directCues.push("허용 예외 조합을 ‘제2류 인화성 고체 + 제4류’로 통째로 외우고, 두 위험물 사이를 1 m 이상 띄웁니다. 제2류 전체로 넓혀 외우지 말고 ‘인화성 고체’ 조건을 꼭 붙이세요.");
+  }
+  if(/마그네슘을 운반할 때 운반용기/.test(q)){
+    directCues.push("표시 위치가 함정입니다. 운반용기 바깥은 ‘화기주의·물기엄금’ 두 개, 제조소 게시판은 ‘화기주의’만입니다. 용기에는 물 반응 경고를 더하고, 게시판 문구를 그대로 복사하지 마세요.");
+  }
+  if(/B씨가 밟을 행정절차 순서/.test(q)){
+    directCues.push("절차를 시간순으로 고정하세요: 공사 중 변경신고 → 공사 완료 후 완공검사 → 양도 후 지위승계 신고. 안전관리자는 해당 시설을 처음 사용하기 전까지 선임합니다. ‘변경·완공·승계’ 세 동사로 순서를 기억하세요.");
+  }
+  if(/반지름 2 m, 길이 5 m인 원통형 탱크 몸통의 체적/.test(q)){
+    directCues.push("원통부피는 V=πr²L입니다. r=2, L=5를 넣어 π×2²×5=20π≈62.8 m³. 지름이 아니라 반지름이므로 2를 제곱하고, 경판이 없는 몸통만 계산합니다.");
+  }
+  if(/지정수량 배수의 합계를 구하시오/.test(q)&&/위험물 A 1,000 L/.test(q)){
+    directCues.push("혼합 위험물의 지정수량 배수는 각각 ‘실제 수량÷해당 지정수량’을 계산해 합합니다. 1,000/200=5, 30/10=3, 합계 8배. L끼리, kg끼리 나눈 뒤 무단위를 더하세요.");
+  }
+  if(/소화난이도등급 II인 옥외탱크저장소/.test(q)){
+    directCues.push("옥외·옥내 탱크저장소의 소화난이도 Ⅱ는 ‘대형 1개 이상 + 소형 1개 이상’ 두 크기의 수동식소화기를 함께 둡니다. 대형만 또는 소형만으로 답하지 않도록 ‘대·소 한 쌍’으로 외우세요.");
+  }
+  if(/이동탱크저장소에서 운송 중 위험물의 쏠림/.test(q)){
+    directCues.push("역할을 그림처럼 구분하세요: 방파판은 탱크 안 액체의 출렁임·쏠림을 줄이고, 측면틀은 차량 전도 때 탱크 본체를 보호합니다. ‘액체 흔들림=방파판, 바깥 충격=측면틀’입니다.");
+  }
+  if(/국소식 배출설비를 계산/.test(q)){
+    directCues.push("국소식은 배출장소 체적의 시간당 20배입니다. 먼저 8×6×4=192 m³, 다음 192×20=3,840 m³/h. 전역식 공식을 끌어오지 말고 ‘체적×20’으로 바로 계산하세요.");
+  }
+  if(/지정과산화물 5배 초과.*담을 설치/.test(q)){
+    directCues.push("담 기준은 ‘거리 2 m 이상(공지 너비의 1/5 이하) / 높이 처마 이상 / 철근콘크리트 두께 15 cm 이상’ 세 칸입니다. 숫자는 2-처마-15로 묶고, 거리에 붙는 공지 너비 예외도 함께 적으세요.");
+  }
+  if(/저부포주입법.*포방출구 형식/.test(q)){
+    directCues.push("고정지붕 탱크의 저부포주입법에서 호스가 액면까지 올라오는 형식은 Ⅳ형입니다. ‘저부에서 들어가 액면까지 뜨는 호스 → Ⅳ형’으로 장면을 붙이세요.");
+  }
+  if(/중복 선임하여 맡을 수 있는 최대 개수/.test(q)){
+    directCues.push("같은 구내 옥외탱크저장소의 중복선임 상한은 30개입니다. 숫자 30만 외우지 말고 적용 범위인 ‘같은 구내 + 옥외탱크’를 세트로 붙이세요.");
+  }
+  if(/안전성능검사 3가지는/.test(q)){
+    directCues.push("검사는 탱크가 만들어지는 순서로 ‘기초·지반 → 충수·수압 → 용접부’입니다. 첫째는 땅, 둘째는 물을 채워 본체, 셋째는 이음부를 확인하므로 ‘기·충·용’으로 회상하세요.");
+  }
+  if(/최대 유속과, 다른 주입방법/.test(q)){
+    directCues.push("주입관 끝이 액면에 잠길 때까지는 초당 1 m 이하로 천천히 넣습니다. 다른 방식이면 탱크 안에 가연성 증기가 없어야 합니다. ‘잠기기 전 1 m/s, 대체주입 전 증기 제거’로 조건을 나눠 외우세요.");
+  }
+  if(/전역방식으로 설치할 수 있는 예외 두 가지/.test(q)){
+    directCues.push("전역식 예외는 ‘배관이음뿐인 설비’ 또는 ‘건축물·작업장 배치상 전역식이 유효’ 두 가지입니다. 원칙은 국소식, 예외는 ‘배관만 / 전역이 더 유효’로 기억하세요.");
+  }
+  if(/최소 헤드 방사압력을 쓰고, CO₂ 저압식 저장온도/.test(q)){
+    directCues.push("압력은 CO₂ 고압 2.1 MPa, 저압 1.05 MPa, IG 1.9 MPa이고, 저압식 저장은 −18℃ 이하입니다. CO₂는 고압:저압=2:1, IG는 1.9로 따로 외우세요. 방사는 60초 이내, IG는 그 안에 규정량 95% 이상입니다.");
+  }
+  if(/제4류 비수용성 제1석유류 600 L/.test(q)){
+    directCues.push("지정수량 배수는 단위별로 나눠 더합니다: 제1석유류 600/200=3배, 칼륨 20/10=2배, 합계 5배. 서로 다른 위험물도 각자의 지정수량으로 나눈 뒤 합산하세요.");
+  }
+  if(/반구형 경판이 각각 하나씩/.test(q)&&/전체 내부용량/.test(q)){
+    directCues.push("양쪽 반구 두 개는 반지름이 같은 구 하나로 합칩니다. V=원통 πr²L + 구 4/3πr³ =20π+10.667π=30.667π≈96.3 m³. ‘반구 2개=구 1개’가 계산의 핵심입니다.");
+  }
+  if(/조합 중 옥내저장소에서 1 m 이상 간격/.test(q)){
+    directCues.push("허용되는 혼재 예외는 (가) 제2류 인화성 고체+제4류 하나입니다. 제2류 전체가 아니라 ‘인화성 고체’만 해당하며, 1 m 이상 간격을 둡니다. 보기 (나)·(다)는 제외하세요.");
+  }
+  if(/방화상 유효한 담의 높이를 산정할 때/.test(q)){
+    directCues.push("그림은 ‘담을 반영한 선 → 원래 연소 경계 → 위험 구간’ 순서로 읽으세요: ㉠ 보정연소한계곡선(담 높이 반영), ㉡ 연소한계곡선(기본 경계), ㉢ 연소위험범위(경계 위로 드러난 부분). ‘보정=담 보정, 위험범위=불이 번질 부분’로 연결하면 명칭이 바뀌지 않습니다.");
+  }
+  if(/신고·조치 기한을 쓰시오/.test(q)){
+    directCues.push("기한은 ‘1일 전 / 14일 / 30일’ 세 묶음입니다. 품명·수량 변경은 유일한 사전신고라 1일 전. 용도폐지와 안전관리자 선임신고는 14일 이내. 지위승계·안전관리자 해임 후 재선임·탱크시험자 변경은 30일 이내입니다. 특히 ‘선임신고 14일’과 ‘해임 후 재선임 30일’을 한 쌍으로 구별하세요.");
+  }
+  if(/융점이 1,530℃인 제2류 위험물/.test(q)){
+    directCues.push("비중 7.86·융점 1,530℃는 철(Fe) 단서입니다. 법정 철분 기준은 ‘53 μm 표준체 통과분 50 wt% 이상’이므로 ‘53-50’을 한 쌍으로 외우세요. 금속분 기준 150 μm·50 wt% 미만과 숫자와 부등호를 바꾸지 마세요.");
+  }
+  if(/소화설비별 적응성/.test(q)&&/조건부로 적응성/.test(q)){
+    directCues.push("표는 먼저 금수성 3칸(제1류 알칼리금속 과산화물·제2류 금속분/마그네슘·제3류 금수성)을 표시하세요. 여기는 탄산수소염류 분말과 금속화재용 기타 분말만 적응합니다. 물분무·포는 일반 위험물과 제4류까지, 가스계는 제2류 인화성 고체와 제4류만, 인산염 분말은 제1류 일반·제2류 일반/인화성·제4류·제6류입니다. 스프링클러의 제4류만 △이고, 물분무·포는 ○입니다.");
+  }
+  if(/소화난이도등급 Ⅰ의 제조소 등에 설치해야 하는 소화설비/.test(q)){
+    directCues.push("세 행을 ‘높은 실내 / 황 / 고인화점 제4류’로 묶으세요. 처마 6 m 이상 단층 옥내저장소는 스프링클러 또는 이동식 외 물분무등, 황만 저장하는 옥외탱크는 물분무, 인화점 70℃ 이상 제4류만 저장하는 탱크는 물분무 또는 고정식 포입니다. 황은 냉각, 고인화점 액체는 포도 선택 가능으로 이유를 붙이세요.");
+  }
+  if(/화학소방자동차가 갖추어야 하는 소화능력/.test(q)){
+    directCues.push("차량별 숫자를 단위까지 묶으세요: 포는 분당 2,000 L·약제 10만 L분, 분말은 초당 35 kg·분말 1,400 kg. ‘포=분 단위, 분말=초 단위’가 핵심 함정이고, 포 차량에는 소화약액혼합장치가 붙습니다.");
+  }
+  if(/알킬알루미늄은 운송책임자의 감독·지원을 받아 운송/.test(q)){
+    directCues.push("알킬알루미늄 탱크는 ‘1,900 L 미만·적색’으로 고정하세요. 자격은 국가기술자격+경력 1년 또는 안전교육+경력 2년, 서류는 완공검사합격확인증+정기점검기록입니다. 연소식은 Al₂O₃를 먼저 두고 C 12개→12CO₂, H 30개→15H₂O로 맞추면 O₂가 21이 됩니다.");
+  }
+  if(/아세트알데하이드는 제4류 위험물/.test(q)&&/완전연소/.test(q)){
+    directCues.push("CH₃CHO는 비점 21℃라 상온에서도 증발하기 쉬워 특수인화물입니다. 답안 핵심 두 가지는 ‘탱크전용실에 설치’와 ‘옥외탱크 설비기준 준용’입니다. 뒤 기준의 냉각·보냉은 온도 유지 구조가 있으면 면제될 수 있습니다. 연소식은 2CH₃CHO + 5O₂ → 4CO₂ + 4H₂O.");
+  }
+  if(/소화난이도등급 Ⅱ에 해당하는 제조소 등에 어떤 소화설비/.test(q)){
+    directCues.push("빈칸은 두 묶음으로 복원하세요. 첫 행의 취급소 3종은 ‘주유·판매·일반’; 둘째 행 탱크저장소는 ‘대형·소형 수동식소화기’ 한 쌍입니다. 소화난이도 Ⅱ는 고정식 설비가 아니라 대형소화기로 방호범위를 덮고 소형소화기를 보완한다는 구조를 기억하세요.");
+  }
+  if(/융점 651\[℃\], 비중 1\.74/.test(q)){
+    directCues.push("500 kg·비중 1.74·융점 약 650℃는 마그네슘입니다. 반응식은 산소와 2Mg+O₂→2MgO, 물과 Mg+2H₂O→Mg(OH)₂+H₂. 표시 함정은 운반용기에는 ‘화기주의·물기엄금’ 두 개지만 제조소 게시판에는 ‘화기주의’만 씁니다. 제외 형상은 ‘덩어리: 2 mm 체 불통과 / 막대: 지름 2 mm 이상’으로 방향을 나눠 외우세요.");
+  }
+  if(/이동탱크저장소의 기준에 대하여 다음 물음에 답하시오/.test(q)&&/UN넘버/.test(q)){
+    directCues.push("긴 문항은 순서를 ‘주차 → 탱크 안 → 탱크 바깥 → 주입 → 특수물질 → 식별·접지·형식’으로 묶으세요. 답의 고정 숫자는 상치장소 실내 1층, 칸막이 4,000 L 이하, 주입설비 50 m·200 L/min, 탱크전용실, 방파판(출렁임)·측면틀(전복 보호), 접지 대상 특수인화물·제1·제2석유류입니다. ‘방파판은 액체 흔들림, 측면틀은 본체 보호’로 역할을 분리하세요.");
+  }
+  if(/트라이에틸알루미늄이 다음 \[보기\]의 물질과 각각 반응/.test(q)){
+    directCues.push("가연성 공통기체는 에테인 C₂H₆입니다. 물·메탄올·염산은 수소를 주어 에틸기 3개를 에테인 3분자로 바꾸므로 각 반응물 계수에 3을 붙입니다. Al의 짝만 달라져 물→Al(OH)₃, 메탄올→Al(OCH₃)₃, 염산→AlCl₃가 됩니다. O₂는 연소, Cl₂는 염화에틸 생성이라 에테인 발생 목록에서 제외하세요.");
+  }
   if(propertyJudgment){
     cues.push("복수 성상 판정은 성상을 하나씩 체크한 뒤 조합 규칙을 적용합니다. 이 기출의 고정 고리는 산화성+가연성 고체 → 제2류, 자기반응성 포함 → 제5류, 자연발화성+금수성 포함 → 제3류입니다. 가장 위험해 보이는 성질 하나를 찍지 말고, 각 조합을 따로 판정해 번호마다 유별 하나씩 대응시키세요.");
   }
@@ -83,7 +198,11 @@ function professorHint(c){
     if(reaction&&/분자량/.test(q)&&/비중/.test(q)){
       cues.push("먼저 물성 지문으로 반응물의 정체를 확정하세요. 이 문제의 지정수량 10 kg·비중 0.86·분자량 39.1은 칼륨(K)을 가리킵니다. 그 뒤에는 금속 K를 고정하고 CO₂·CCl₄·에탄올이라는 상대만 바꾸어 생성물을 떠올리면 세 반응식이 한 묶음으로 정리됩니다.");
     }else{
-      cues.push("물질 식별은 단서 하나로 찍지 말고 지문에 나온 분자량·비중·인화점·수용성·반응성을 한 묶음의 지문으로 대조하세요. 물질명을 확정한 다음 문제에서 요구한 품명·유별·위험등급·화학식만 순서대로 답하고, 분자량이나 성질로 역검산합니다.");
+      var propertyFacts=q.match(/(?:분자량|증기비중|비중|인화점|융점|착화점|연소범위|지정수량|농도)\s*(?:은|는|이|가)?\s*[-−]?\d+(?:[.,]\d+)?\s*(?:\[[^\]]+\]|(?:kg|g|L|℃|%|wt%|vol%))?/g)||[];
+      var solubilityFact=q.match(/(?:물에 잘 녹|물에 녹|수용성|비수용성|물과 반응|물과 격렬히 반응|공기 중에서 자연발화)/g)||[];
+      var identityAnswer=String(a||"").split(/\r?\n/).map(function(line){return line.replace(/^\s*(?:\(\d+\)|[①-⑳]|[㉮-㉻]|\d+[.)])\s*/,"").trim()}).filter(Boolean)[0]||"";
+      var identityClues=propertyFacts.concat(solubilityFact).slice(0,5);
+      if(identityClues.length&&identityAnswer)cues.push("물질 판별 고리: 지문 수치·성질 ‘"+identityClues.join(" / ")+"’ → 답 첫머리 ‘"+shorten(identityAnswer,90)+"’. 먼저 이 단서로 물질명을 확정하고, 그 물질의 품명·유별·화학식을 이어 쓰세요.");
     }
   }  if(structure){
     cues.push("구조식은 탄소 골격을 먼저 그리고 작용기와 치환기 위치를 붙인 뒤, 원자가와 분자식을 검산하세요. 이성질체는 기준 탄소를 1번으로 고정하고 위치번호로 구분해야 o/m/p 또는 치환 위치를 뒤섞지 않습니다.");
@@ -282,9 +401,20 @@ function professorHint(c){
   if(custom&&!/^(?:반응식:|계산:|구조·식:|기준·절차:|회상:)/.test(custom)){
     custom=custom.replace(/^(?:암기 고리|기억 고리|물질 확인 고리|암기법|기억법)\s*[:：]\s*/,"");
     cues.push("이 문제 전용 암기고리: "+custom);
-  }  if(!cues.length){
-    var answerAnchor=String(a||"").split(/\r?\n/).map(function(line){return line.trim()}).filter(Boolean).slice(0,2).join(" / ");
-    cues.push("이 카드에서 외울 짝: "+shorten(q,56)+" → "+shorten(answerAnchor,100)+".");
+  }
+  var lowSignal=/^(?:쪽집게 순서:|계산 풀이:|분해·폭발 반응은|연소식은 생성물을 먼저 고정|반응식은 계수부터 맞추지 마세요|과태료 표는|법정 항목 나열은|처분 사유형은|절차형은|서류 문제는|법규 답안은 문제의 행위와 적용 대상을 먼저 특정|시설기준 쪽집게:|소화설비는 이름 암기만으로 쓰면 감점됩니다|운반용기 기준은 용기의 재질|운반·혼재 문제는 물질마다 한 행씩|물질 식별은 단서 하나로 찍지 말고|구조식은 탄소 골격을 먼저|복합문항은 소문항 번호를 답안 틀로 먼저)/;
+  var focusedCues=cues.filter(function(line){return !lowSignal.test(line)});
+  if(focusedCues.length){
+    cues=focusedCues;
+  }else if(!directCues.length){
+    cues=[];
+    var qAnchor=String(q||'').split(/\r?\n/)[0].replace(/^제\d+회\s*\d+번\s*[·.]\s*/, '');
+    var answerAnchor=String(a||'').split(/\r?\n/).map(function(line){return line.replace(/^\s*(?:\(\d+\)|[①-⑳]|[㉮-㉻]|\d+[.)])\s*/, '').trim()}).filter(function(line){return line&&!/^(?:암기 고리|물질 확인 고리|기억 고리)/.test(line)}).slice(0,2).join(' / ');
+    cues.push('이 문항의 실전 회상: ‘'+shorten(qAnchor,72)+'’가 보이면 답의 첫 핵심어는 ‘'+shorten(answerAnchor,110)+'’입니다. 답을 가리고 지문 단서만으로 먼저 복원하세요.');
+  }
+  if(!cues.length&&!directCues.length){
+    var finalAnswer=String(a||'').split(/\r?\n/).map(function(line){return line.trim()}).filter(Boolean).slice(0,2).join(' / ');
+    cues.push('이 문항의 실전 회상: '+shorten(q,56)+' → '+shorten(finalAnswer,100));
   }
   return directCues.length?directCues.join("\n\n"):cues.join("\n\n");
 }function render(){revealed=false;$("#answer").classList.add("hidden");$("#show").textContent="정답·해설 보기 (Space)";var c=pool[idx];$("#counter").textContent=pool.length?"카드 "+(idx+1)+" / "+pool.length:"조건에 맞는 카드가 없습니다";$("#prompt").textContent=c?c.q:"검색/주제를 바꾸거나 카드를 추가하세요";var figBox=$("#figure");figBox.textContent="";if(c&&Array.isArray(c.figures))c.figures.forEach(function(f){if(!f||!f.svg)return;var img=document.createElement("img");img.alt=f.alt||"원문 문제 그림";img.src="data:image/svg+xml;charset=utf-8,"+encodeURIComponent(f.svg);figBox.appendChild(img)});figBox.classList.toggle("hidden",!figBox.childElementCount);var answerFigBox=$("#answerFigures");answerFigBox.textContent="";if(c&&Array.isArray(c.solutionFigures))c.solutionFigures.forEach(function(f){if(!f||!f.svg)return;var img=document.createElement("img");img.alt=f.alt||"원문 풀이 그림";img.src="data:image/svg+xml;charset=utf-8,"+encodeURIComponent(f.svg);answerFigBox.appendChild(img)});answerFigBox.classList.add("hidden");$("#answerText").textContent=c?c.a:"";var hasExplanation=!!(c&&String(c.explanation||"").trim());$("#explanationHeading").textContent=hasExplanation?"해설":"보충 풀이 포인트";$("#explanationText").textContent=hasExplanation?c.explanation:(c?professorHint(c):"");$("#mnemonicSection").classList.toggle("hidden",!hasExplanation);$("#mnemonicText").textContent=hasExplanation?professorHint(c):"";$("#badges").innerHTML=c?(c.tags||[]).map(function(t){return '<span class="badge">'+esc(t)+'</span>'}).join(""):"";var repeats=archiveDeck.filter(function(c){return c.repeatCount>1}).length;var forecasts=cards.filter(function(c){return (c.tags||[]).indexOf("예상")>=0}).length;$("#progress").textContent="전체 "+cards.length+"장 · 기출 426 · 다수기출 "+repeats+" · 예상 "+forecasts;$("#known").textContent="외움 표시 "+cards.filter(function(c){return c.interval>=7}).length+"장";save()}
