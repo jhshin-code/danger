@@ -223,12 +223,68 @@ function professorHint(c){
   }
   if(/1회.*연속주유량|셀프용 고정주유설비/.test(q)){
     cues.push("셀프 주유·급유 수치는 세 쌍으로 나눠 외우세요: 휘발유 100 L·4분, 경유 600 L·12분, 고정급유 100 L·6분. 여기에 호스 분리 하중 200 kg중과 급유노즐의 수동개폐장치를 별도 안전장치로 붙이세요.");
-  }  var custom=String(c.why||"").trim();
+  }
+  if(/표준상태 벤젠 6 g 연소 시 CO₂ 부피/.test(q)){
+    cues.push("벤젠 1 mol은 탄소가 6개라 CO₂ 6 mol을 만듭니다. 풀이를 ‘6 g ÷ 78 → ×6 → ×22.4 L’로 기억하세요. 생성수는 묻는 CO₂ 부피에 더하지 않습니다. 암기 숫자열은 6-78-6-22.4입니다.");
+  }
+  if(/질산의 비중 조건/.test(q)){
+    cues.push("질산은 ‘비중 1.49 이상’, 과산화수소는 ‘농도 36 wt% 이상’으로 물성 종류부터 다릅니다. 질산 문제에서는 농도 숫자를 쓰지 말고 비중과 단위 없는 기준값 1.49를 답하세요.");
+  }
+  if(/과산화수소 위험물 농도와 분해식/.test(q)){
+    cues.push("두 답을 한 쌍으로 외우세요: 농도 36 wt% 이상, 분해식 2H₂O₂ → 2H₂O + O₂. 계수 기억은 ‘과산화수소 둘이 물 둘과 산소 하나’; 산소가 생기는 방향까지 확인하세요.");
+  }
+  if(/할로젠간화합물 예 3가지/.test(q)){
+    cues.push("중심 원소별로 묶으세요: 브로민은 BrF₃·BrF₅ 두 개, 아이오딘은 IF₅ 한 개입니다. ‘Br은 3·5, I는 5’로 세 개를 복원하고 모두 플루오린화물인지 확인하세요.");
+  }
+  if(/IG-55와 IG-541의 조성/.test(q)){
+    cues.push("먼저 숫자 이름을 조성비로 연결하세요. IG-55는 N₂:Ar=50:50으로 반반, IG-541은 N₂:Ar:CO₂=52:40:8입니다. ‘55는 반반, 541은 52-40-8’로 외우고 세 수의 합이 100인지 검산하세요.");
+  }
+  if(/CO₂\/IG 분사헤드 압력/.test(q)){
+    cues.push("압력은 계열별로 묶으세요: CO₂ 고압식 2.1 MPa, CO₂ 저압식 1.05 MPa, IG 계열 1.9 MPa. CO₂는 고압식이 저압식의 2배이고, IG 수치를 CO₂ 고압식과 바꾸지 않는 것이 함정입니다.");
+  }
+  if(/CO₂ 저압식 저장 기준 온도/.test(q)){
+    cues.push("저압식 CO₂는 ‘저장 −18℃ 이하, 헤드 1.05 MPa 이상’ 두 조건을 짝으로 외우세요. 온도는 더 낮게, 압력은 기준 이상이라는 방향을 각각 붙이면 부등호를 뒤집지 않습니다.");
+  }
+  if(/옥내소화전 비상전원 작동시간/.test(q)){
+    cues.push("옥내소화전의 비상전원 작동시간은 45분 이상입니다. ‘옥내소화전-비상전원-45분’을 한 덩어리로 회상하고, 다른 설비의 작동시간과 섞지 않도록 설비명을 먼저 적으세요.");
+  }
+  if(/옥내소화전 개폐밸브와 호스접속구 높이/.test(q)){
+    cues.push("개폐밸브와 호스접속구 모두 바닥 기준 1.5 m 이하입니다. 두 부품에 같은 높이를 적용하므로 ‘밸브·접속구 = 150 cm 이하’로 묶고, 기준면이 바닥이라는 말을 답에 함께 붙이세요.");
+  }
+  if(/옥내소화전 7개 설치 시/.test(q)){
+    cues.push("수원량은 해당 층 소화전 수와 5 중 작은 수에 7.8 m³를 곱합니다: min(n,5)×7.8. 7개면 5개까지만 계산해 39 m³입니다. 먼저 5개 상한을 적용한 뒤 곱하세요.");
+  }
+  if(/CO₂ 고압식과 저압식 숫자를 비교/.test(q)){
+    cues.push("고압·저압을 저장상태와 헤드압력으로 나란히 외우세요: 고압식은 상온·2.1 MPa, 저압식은 −18℃ 이하·1.05 MPa. 저압식 압력은 고압식의 절반입니다.");
+  }
+  if(/제2류 인화성 고체의 정의, 표시/.test(q)){
+    cues.push("채점용 세 토막은 ‘정의 40℃ 미만 → 표시 화기엄금 → 혼재 제4류와 1 m 이상’입니다. 온도는 1기압 조건을 붙이고, 1 m는 제2류 인화성 고체와 제4류를 함께 저장할 때의 간격으로 연결하세요.");
+  }
+  if(/트라이에틸알루미늄의 유별·품명/.test(q)){
+    cues.push("이름에서 ‘알루미늄의 알킬화합물’을 잡아 품명을 알킬알루미늄으로 씁니다. 세 칸을 ‘제3류 / 알킬알루미늄 / 10 kg’ 순서로 회상하세요. 지정수량은 10 kg이므로 액체 위험물의 L 수치와 섞지 않습니다.");
+  }
+  if(/질산칼륨 10수화물 12\.6 g/.test(q)){
+    cues.push("결정수까지 용매에 합치는 문제가 핵심입니다. 12.6 g을 KNO₃와 물로 분리해 각각 12.6×101/281=4.53 g, 12.6×180/281=8.07 g을 구하고, 용매는 20+8.07=28.07 g으로 잡습니다. 마지막에 4.53÷28.07×100=약 16.1 g/100 g 물입니다.");
+  }
+  if(/같은 유량이 지름 100 mm 관에서 50 mm 관/.test(q)){
+    cues.push("유량이 같으면 Q=Av에서 단면적이 줄어든 만큼 유속이 커집니다. 원형관은 A∝D²이므로 v₂/v₁=(D₁/D₂)²=(100/50)²=4입니다. 지름을 한 번만 나누지 말고 제곱하세요.");
+  }
+  if(/마그네슘에서 위험물 정의의 범위에서 제외되는 형상/.test(q)){
+    cues.push("둘 다 경계값은 2 mm지만 방향이 반대입니다: 덩어리는 2 mm 체를 통과하지 않는 것, 막대는 지름 2 mm 이상인 것. ‘덩어리=체에 안 통과, 막대=지름 기준’으로 구분해 쓰세요.");
+  }
+  if(/0\.5 mol 기체가 27℃·100 kPa/.test(q)){
+    cues.push("먼저 섭씨를 절대온도로 바꿔 27+273=300 K로 둡니다. PV=nRT에서 V=nRT/P에 0.5 mol·8.314·300 K·100 kPa를 넣으면 12.47 L입니다. R의 단위가 L·kPa이므로 압력 단위와 결과 L를 맞추세요.");
+  }
+  if(/칼륨 화재에 적합한 소화방법/.test(q)){
+    cues.push("금지 이유를 반응으로 연결하면 소화약제가 기억됩니다: K+H₂O는 열과 H₂를 내므로 물 금지, K+CO₂는 CO₂를 환원해 탄소를 만들므로 CO₂ 금지. 따라서 마른모래로 덮어 질식소화합니다. ‘물→수소·열, CO₂→탄소, 대안→마른모래’ 순서로 답하세요.");
+  }
+  var custom=String(c.why||"").trim();
   if(custom&&!/^(?:반응식:|계산:|구조·식:|기준·절차:|회상:)/.test(custom)){
     custom=custom.replace(/^(?:암기 고리|기억 고리|물질 확인 고리|암기법|기억법)\s*[:：]\s*/,"");
     cues.push("이 문제 전용 암기고리: "+custom);
   }  if(!cues.length){
-    cues.push("정의·목록형은 핵심어를 먼저 말하고 조건·예외를 덧붙이세요. 답안을 가린 채 문제의 지시어와 요구 개수만 보고 다시 써 본 뒤, 원문과 빠진 표현을 대조합니다.");
+    var answerAnchor=String(a||"").split(/\r?\n/).map(function(line){return line.trim()}).filter(Boolean).slice(0,2).join(" / ");
+    cues.push("이 카드에서 외울 짝: "+shorten(q,56)+" → "+shorten(answerAnchor,100)+".");
   }
   return cues.join("\n\n");
 }function render(){revealed=false;$("#answer").classList.add("hidden");$("#show").textContent="정답·해설 보기 (Space)";var c=pool[idx];$("#counter").textContent=pool.length?"카드 "+(idx+1)+" / "+pool.length:"조건에 맞는 카드가 없습니다";$("#prompt").textContent=c?c.q:"검색/주제를 바꾸거나 카드를 추가하세요";var figBox=$("#figure");figBox.textContent="";if(c&&Array.isArray(c.figures))c.figures.forEach(function(f){if(!f||!f.svg)return;var img=document.createElement("img");img.alt=f.alt||"원문 문제 그림";img.src="data:image/svg+xml;charset=utf-8,"+encodeURIComponent(f.svg);figBox.appendChild(img)});figBox.classList.toggle("hidden",!figBox.childElementCount);var answerFigBox=$("#answerFigures");answerFigBox.textContent="";if(c&&Array.isArray(c.solutionFigures))c.solutionFigures.forEach(function(f){if(!f||!f.svg)return;var img=document.createElement("img");img.alt=f.alt||"원문 풀이 그림";img.src="data:image/svg+xml;charset=utf-8,"+encodeURIComponent(f.svg);answerFigBox.appendChild(img)});answerFigBox.classList.add("hidden");$("#answerText").textContent=c?c.a:"";var hasExplanation=!!(c&&String(c.explanation||"").trim());$("#explanationHeading").textContent=hasExplanation?"해설":"보충 풀이 포인트";$("#explanationText").textContent=hasExplanation?c.explanation:(c?professorHint(c):"");$("#mnemonicSection").classList.toggle("hidden",!hasExplanation);$("#mnemonicText").textContent=hasExplanation?professorHint(c):"";$("#badges").innerHTML=c?(c.tags||[]).map(function(t){return '<span class="badge">'+esc(t)+'</span>'}).join(""):"";var repeats=archiveDeck.filter(function(c){return c.repeatCount>1}).length;var forecasts=cards.filter(function(c){return (c.tags||[]).indexOf("예상")>=0}).length;$("#progress").textContent="전체 "+cards.length+"장 · 기출 426 · 다수기출 "+repeats+" · 예상 "+forecasts;$("#known").textContent="외움 표시 "+cards.filter(function(c){return c.interval>=7}).length+"장";save()}
